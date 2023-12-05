@@ -1,6 +1,6 @@
 let currentInput = '';
 let currentOperation = '';
-let storedInput = ''; 
+let storedInput = '';
 
 const display = document.getElementById('display');
 const buttonsContainer = document.getElementById('buttons');
@@ -13,10 +13,10 @@ const appendNumber = number => {
 const setOperation = operation => {
   if (currentInput !== '') {
     if (currentOperation !== '') {
-      calculateResult(); 
+      calculateResult();
     } else {
-      storedInput = currentInput; 
-      currentInput = ''; 
+      storedInput = currentInput;
+      currentInput = '';
     }
     currentOperation = operation;
     updateDisplay();
@@ -46,10 +46,32 @@ const updateDisplay = () => {
   display.value = `${currentInput} ${currentOperation}`;
 };
 
+const saveToLocalStorage = () => {
+  localStorage.setItem('calculatorData', JSON.stringify({
+    currentInput,
+    currentOperation,
+    storedInput
+  }));
+};
+
+const loadFromLocalStorage = () => {
+  const savedData = localStorage.getItem('calculatorData');
+  if (savedData) {
+    const { currentInput: savedInput, currentOperation: savedOperation, storedInput: savedStoredInput } = JSON.parse(savedData);
+    currentInput = savedInput;
+    currentOperation = savedOperation;
+    storedInput = savedStoredInput;
+    updateDisplay();
+  }
+};
+
 const createButton = (text, action) => {
   const button = document.createElement('button');
   button.textContent = text;
-  button.onclick = action;
+  button.onclick = () => {
+    action();
+    saveToLocalStorage();
+  };
   buttonsContainer.appendChild(button);
 };
 
@@ -70,8 +92,10 @@ const initializeCalculator = () => {
   createButton('C', clearDisplay);
   createButton('=', calculateResult);
   createButton('/', () => setOperation('/'));
+
+  
+  loadFromLocalStorage();
 };
 
 initializeCalculator();
-
 
